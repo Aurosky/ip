@@ -56,9 +56,13 @@ public class Willa {
     public static void main(String[] args) {
         Task[] tasks = new Task[100];
         int taskCount = 0;
-
+        String logo = " __        ___  _ _       \n"
+                + " \\ \\      / (_) | | __ _ \n"
+                + "  \\ \\ /\\ / /| | | |/ _` |\n"
+                + "   \\ V  V / | | | | (_| |\n"
+                + "    \\_/\\_/  |_|_|_|\\__,_|\n";
         System.out.println(LINE);
-        System.out.println("     Hello! I'm Willa.");
+        System.out.println("     Hello from \n" + logo);
         System.out.println("     What can I do for you?");
         System.out.println(LINE);
 
