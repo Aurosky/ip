@@ -1,7 +1,8 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
-class DukeException extends Exception {
-    public DukeException(String message) {
+class WillaException extends Exception {
+    public WillaException(String message) {
         super(message);
     }
 }
@@ -78,15 +79,15 @@ public class Willa {
     private static final String LINE = "    ____________________________________________________________";
     
     public static void main(String[] args) {
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
-        String logo = " __        ___  _ _       \n"
-                + " \\ \\      / (_) | | __ _ \n"
+        ArrayList<Task> tasks = new ArrayList<>();
+        
+        String logo = " __        ___  _ _\n"
+                + " \\ \\      / (_) | | __ _\n"
                 + "  \\ \\ /\\ / /| | | |/ _` |\n"
                 + "   \\ V  V / | | | | (_| |\n"
                 + "    \\_/\\_/  |_|_|_|\\__,_|\n";
         System.out.println(LINE);
-        System.out.println("     Hello from \n" + logo);
+        System.out.println("     Hello from\n" + logo);
         System.out.println("     What can I do for you?");
         System.out.println(LINE);
         
@@ -94,58 +95,58 @@ public class Willa {
         
         while (true) {
             String input = scanner.nextLine();
-            System.out.println(LINE);
             try {
                 if (input.equalsIgnoreCase("bye")) {
                     System.out.println("     Bye. Hope to see you again soon!");
-                    System.out.println(LINE);
                     break;
                 } else if (input.equalsIgnoreCase("list")) {
                     System.out.println("     Here are the tasks in your list:");
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println("     " + (i + 1) + "." + tasks[i]);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println("     " + (i + 1) + "." + tasks.get(i));
                     }
                 } else if (input.startsWith("mark ") || input.startsWith("unmark ")) {
-                    handleMarkingInternal(input, tasks, taskCount);
-                } else {
+                    handleMarkingInternal(input, tasks);
+                }else if (input.startsWith("delete ")) { // 记得在这里调用删除
+                    handleDelete(input, tasks);
+                }else {
                     Task newTask = null;
                     if (input.startsWith("todo")) {
                         String detail = input.substring(4).trim();
                         if (detail.isEmpty()) {
-                            throw new DukeException("The description of a todo cannot be empty.");
+                            throw new WillaException("The description of a todo cannot be empty.");
                         }
                         newTask = new Todo(detail);
                     } else if (input.startsWith("deadline")) {
                         String detail = input.substring(8).trim();
                         if (!detail.contains(" /by ")) {
-                            throw new DukeException("Deadline format should be: deadline <desc> /by <time>");
+                            throw new WillaException("Deadline format should be: deadline <desc> /by <time>");
                         }
                         String[] parts = detail.split(" /by ", 2);
                         if (parts.length < 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
-                            throw new DukeException("Missing description or /by time in deadline.");
+                            throw new WillaException("Missing description or /by time in deadline.");
                         }
                         newTask = new Deadline(parts[0], parts[1]);
                     } else if (input.startsWith("event")) {
                         String detail = input.substring(5).trim();
                         String[] parts = detail.split(" /from ", 2);
                         if (parts.length < 2 || parts[0].isEmpty() || !parts[1].contains(" /to ")) {
-                            throw new DukeException("Event format should be: event <desc> /from <start> /to <end>");
+                            throw new WillaException("Event format should be: event <desc> /from <start> /to <end>");
                         }
                         String[] times = parts[1].split(" /to ", 2);
                         if (times.length < 2 || times[0].isEmpty() || times[1].isEmpty()) {
-                            throw new DukeException("Missing start or end time for event.");
+                            throw new WillaException("Missing start or end time for event.");
                         }
                         newTask = new Event(parts[0], times[0], times[1]);
                     } else {
-                        throw new DukeException("I'm not sure what that means. Try a valid command.");
+                        throw new WillaException("I'm not sure what that means. Try a valid command.");
                     }
                     
-                    tasks[taskCount++] = newTask;
+                    tasks.add(newTask);
                     System.out.println("     Got it. I've added this task:");
                     System.out.println("       " + newTask);
-                    System.out.println("     Now you have " + taskCount + " tasks in the list.");
+                    System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
                 }
-            } catch (DukeException e) {
+            } catch (WillaException e) {
                 System.out.println("     [OOPS] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("     Something went wrong! " + e.getMessage());
@@ -156,30 +157,35 @@ public class Willa {
         scanner.close();
     }
     
-    private static void handleMarkingInternal(String input, Task[] tasks, int taskCount) throws DukeException {
-        String[] parts = input.split(" ");
-        if (parts.length != 2) {
-            throw new DukeException("Please specify the task number correctly.");
-        }
-        
-        int idx;
+    private static void handleDelete(String input, ArrayList<Task> tasks) throws WillaException {
         try {
-            idx = Integer.parseInt(parts[1]) - 1;
+            int idx = Integer.parseInt(input.substring(7).trim()) - 1;
+            if (idx < 0 || idx >= tasks.size()) throw new WillaException("Task number is out of range.");
+            
+            Task removedTask = tasks.remove(idx); // 直接从 list 中移除
+            System.out.println("     Noted. I've removed this task:");
+            System.out.println("       " + removedTask);
+            System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
         } catch (NumberFormatException e) {
-            throw new DukeException("Task number must be an integer.");
+            throw new WillaException("Please provide a valid task number to delete.");
         }
+    }
+    
+    private static void handleMarkingInternal(String input, ArrayList<Task> tasks) throws WillaException {
+        String[] parts = input.split(" ");
+        if (parts.length != 2) throw new WillaException("Specify the task number.");
         
-        if (idx < 0 || idx >= taskCount) {
-            throw new DukeException("Task number is out of range.");
-        }
+        int idx = Integer.parseInt(parts[1]) - 1;
+        if (idx < 0 || idx >= tasks.size()) throw new WillaException("Task number is out of range.");
         
+        Task t = tasks.get(idx);
         if (input.startsWith("mark ")) {
-            tasks[idx].markAsDone();
+            t.markAsDone();
             System.out.println("     Nice! I've marked this task as done:");
         } else {
-            tasks[idx].markAsNotDone();
+            t.markAsNotDone();
             System.out.println("     OK, I've marked this task as not done yet:");
         }
-        System.out.println("       " + tasks[idx]);
+        System.out.println("       " + t);
     }
 }
