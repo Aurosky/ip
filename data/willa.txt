@@ -1,3 +1,7 @@
 T | 0 | read book
 D | 0 | return book | 2019-10-15 1800
 T | 0 | map
+D | 0 | read book | 2026-07-10
+D | 0 | return book | 2026-08-23 1600
+E | 0 | party | 2026-03-04 | 2026-05-06
+E | 0 | party | today | tomorrow

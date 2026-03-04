@@ -7,9 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -105,54 +107,59 @@ class Todo extends Task {
  * Extends the deadline property of type LocalDateTime and provides date parsing/formatting methods.
  */
 class Deadline extends Task {
-    /** Task deadline (including date and time) */
     protected LocalDateTime by;
     
-    /** Date parser and formatter supporting yyyy-MM-dd or yyyy-MM-dd HHmm formats */
+    // decoder: yymmdd(hhmm)
     private static final DateTimeFormatter PARSE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HHmm]");
     
-    /** Date display formatter, format: MMM dd yyyy hh:mm a (e.g., Oct 02 2019 06:00 PM) */
-    private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a");
+    // show format
+    private static final DateTimeFormatter DATE_ONLY_DISPLAY = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private static final DateTimeFormatter DATE_TIME_DISPLAY = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a");
     
-    /**
-     * Constructs an instance of a Deadline task.
-     * @param description The specific description of the deadline task
-     * @param by The deadline time of the task (LocalDateTime type)
-     */
     public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
     
-    /**
-     * Parses a string-formatted deadline into a LocalDateTime object for use when loading data into Storage.
-     * @param byStr String-formatted deadline, supporting yyyy-MM-dd or yyyy-MM-dd HHmm formats
-     * @return The parsed LocalDateTime object
-     * @throws WillaException Throws an exception when the input date format is invalid
-     */
+    
     public static LocalDateTime parseBy(String byStr) throws WillaException {
         try {
-            return LocalDateTime.parse(byStr, PARSE_FORMATTER);
+            // try parseBest to get LocalDateTime or LocalDate
+            TemporalAccessor accessor = PARSE_FORMATTER.parseBest(byStr.trim(),
+                    LocalDateTime::from, LocalDate::from);
+            
+            if (accessor instanceof LocalDateTime) {
+                return (LocalDateTime) accessor;
+            } else {
+                return ((LocalDate) accessor).atStartOfDay();
+            }
         } catch (DateTimeParseException e) {
-            throw new WillaException("Invalid date format! Please use yyyy-MM-dd or yyyy-MM-dd HHmm (e.g., 2019-12-02 or 2019-12-02 1800)");
+            throw new WillaException("Date error！please use yyyy-MM-dd or yyyy-MM-dd HHmm");
         }
     }
     
     /**
-     * Converts a LocalDateTime-type deadline into a standard string for use when storing data in Storage.
-     * @return A standard-formatted deadline string (yyyy-MM-dd or yyyy-MM-dd HHmm)
+     * if no hhmm, only store yymmdd
      */
     public String getByAsString() {
-        return by.format(PARSE_FORMATTER);
+        if (by.getHour() == 0 && by.getMinute() == 0) {
+            return by.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+        return by.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
     }
     
     /**
-     * Override the toString method to add the Deadline task's type identifier [D] and a formatted deadline.
-     * @return A formatted Deadline task string in the format “[D][status icon] description (by: formatted time)”
+     * if no hhmm, show yymmdd
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by.format(DISPLAY_FORMATTER) + ")";
+        String formattedBy;
+        if (by.getHour() == 0 && by.getMinute() == 0) {
+            formattedBy = by.format(DATE_ONLY_DISPLAY);
+        } else {
+            formattedBy = by.format(DATE_TIME_DISPLAY);
+        }
+        return "[D]" + super.toString() + " (by: " + formattedBy + ")";
     }
 }
 
