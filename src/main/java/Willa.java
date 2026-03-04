@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 class WillaException extends Exception {
     public WillaException(String message) {
         super(message);
@@ -58,7 +61,7 @@ class Todo extends Task {
 class Deadline extends Task {
     // String2LocalDateTime, support time
     protected LocalDateTime by;
-    // decode:（yyyy-MM-dd 或 yyyy-MM-dd HHmm), show(MMM dd yyyy)
+    // decode:（yyyy-MM-dd or yyyy-MM-dd HHmm), show(MMM dd yyyy)
     private static final DateTimeFormatter PARSE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HHmm]");
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a");
     
@@ -210,6 +213,23 @@ class Parser {
             Task removed = tasks.deleteTask(idx);
             ui.showMessage("Noted. I've removed this task:\n    " + removed);
             ui.showMessage("Now you have " + tasks.getSize() + " tasks in the list.");
+        } else if (input.startsWith("find ")) { // add find
+            String keyword = input.substring(5).trim();
+            if (keyword.isEmpty()) {
+                throw new WillaException("Search keyword cannot be empty! Use: find <keyword>");
+            }
+            Map<Integer, Task> matchingTasks = tasks.findTasksByKeyword(keyword);
+            ui.showMessage("Here are the matching tasks in your list:");
+            if (matchingTasks.isEmpty()) {
+                ui.showMessage("  No matching tasks found.");
+            } else {
+                // show original index
+                for (Map.Entry<Integer, Task> entry : matchingTasks.entrySet()) {
+                    int originalIndex = entry.getKey();
+                    Task task = entry.getValue();
+                    ui.showMessage("  " + originalIndex + "." + task);
+                }
+            }
         } else {
             // add logic
             Task newTask = handleAdding(input);
@@ -266,6 +286,18 @@ class TaskList {
         Task t = tasks.get(index);
         if (isDone) t.markAsDone(); else t.markAsNotDone();
         return t;
+    }
+    
+    public Map<Integer, Task> findTasksByKeyword(String keyword) {
+        Map<Integer, Task> matchingTasks = new LinkedHashMap<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            // check if has key word
+            if (task.description.toLowerCase().contains(keyword.toLowerCase())) {
+                matchingTasks.put(i + 1, task); // same index in list
+            }
+        }
+        return matchingTasks;
     }
 }
 
