@@ -203,7 +203,7 @@ class Parser {
             ui.showMessage("Noted. I've removed this task:\n    " + removed);
             ui.showMessage("Now you have " + tasks.getSize() + " tasks in the list.");
         } else {
-            // 添加逻辑
+            // add logic
             Task newTask = handleAdding(input);
             tasks.addTask(newTask);
             ui.showMessage("Got it. I've added:\n    " + newTask + "\n     Now: " + tasks.getSize() + " tasks.");
