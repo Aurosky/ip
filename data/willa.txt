@@ -1,1 +1,3 @@
-T | 0 | swim
+T | 1 | map
+D | 0 | movie | JUn 6th
+T | 0 | join club
