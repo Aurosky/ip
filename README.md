@@ -1,26 +1,83 @@
-# Duke project template
+# Willa Task Management Chatbot
 
-This is a project template for a greenfield Java project. It's named after the Java mascot _Duke_. Given below are instructions on how to use it.
+Willa is a simple and efficient command-line task management chatbot that helps you track todos, deadlines, and events effortlessly.
 
-## Setting up in Intellij
+## Quick Start
 
-Prerequisites: JDK 17, update Intellij to the most recent version.
+1. Ensure you have Java 11 or above installed on your system.
+2. Compile and run the Willa.java file.
+3. Once the welcome screen appears, you can start entering commands to manage your tasks.
 
-1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
-1. Open the project into Intellij as follows:
-   1. Click `Open`.
-   1. Select the project directory, and click `OK`.
-   1. If there are any further prompts, accept the defaults.
-1. Configure the project to use **JDK 17** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
-   In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Duke.java` file, right-click it, and choose `Run Duke.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
-   ```
-   Hello from
-    ____        _        
-   |  _ \ _   _| | _____ 
-   | | | | | | | |/ / _ \
-   | |_| | |_| |   <  __/
-   |____/ \__,_|_|\_\___|
-   ```
+## Features
 
-**Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+### Add Tasks
+
+Willa supports three types of tasks:
+
+#### Todo
+A simple task with no time constraints.
+
+- Command: `todo <description>`
+- Example: `todo Buy milk`
+
+#### Deadline
+A task that must be completed by a specific date/time.
+
+- Command: `deadline <description> /by <date>`
+- Date format: `yyyy-MM-dd` or `yyyy-MM-dd HHmm`
+- Example: `deadline Submit assignment /by 2025-05-20 2359`
+
+#### Event
+A task with a start time and end time.
+
+- Command: `event <description> /from <start> /to <end>`
+- Example: `event Project meeting /from Mon 2pm /to Mon 4pm`
+
+### List All Tasks
+
+- Command: `list`
+
+### Mark Task as Done
+
+- Command: `mark <task number>`
+- Example: `mark 2`
+
+### Mark Task as Not Done
+
+- Command: `unmark <task number>`
+- Example: `unmark 2`
+
+### Delete Task
+
+- Command: `delete <task number>`
+- Example: `delete 3`
+
+### Find Tasks by Keyword
+
+- Command: `find <keyword>`
+- Example: `find assignment`
+
+### Exit the Program
+
+- Command: `bye`
+
+## Data Storage
+
+All tasks are automatically saved to:
+`./data/willa.txt`
+
+The file is loaded automatically when the program starts.
+
+## Command Summary
+
+| Command | Format |
+| --- | --- |
+| Add Todo | `todo DESCRIPTION` |
+| Add Deadline | `deadline DESCRIPTION /by DATE` |
+| Add Event | `event DESCRIPTION /from START /to END` |
+| List tasks | `list` |
+| Mark done | `mark INDEX` |
+| Mark undone | `unmark INDEX` |
+| Delete task | `delete INDEX` |
+| Find tasks | `find KEYWORD` |
+| Exit | `bye` |
