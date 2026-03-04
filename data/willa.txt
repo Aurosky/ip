@@ -1,3 +1,2 @@
-T | 1 | map
-D | 0 | movie | JUn 6th
-T | 0 | join club
+T | 0 | read book
+D | 0 | return book | 2019-10-15 1800
