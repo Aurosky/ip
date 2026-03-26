@@ -5,7 +5,7 @@ Willa is a simple and efficient command-line task management chatbot that helps 
 ## Quick Start
 
 1. Ensure you have Java 11 or above installed on your system.
-2. Compile and run the Willa.java file.
+2. Download ip.jar, open terminal, run java -jar ip.jar.
 3. Once the welcome screen appears, you can start entering commands to manage your tasks.
 
 ## Features
