@@ -10,13 +10,26 @@ import java.util.List;
 import Willa.Exception.WillaException;
 import Willa.Tasks.*;
 
+/**
+ * Handles data persistence by loading and saving the task list to a local file.
+ * Supports Todo, Deadline, and Event task types through string-based serialization.
+ */
 public class Storage {
     private String filePath;
     
+    /**
+     * Constructs a Storage instance with a specified file path.
+     * @param filePath The path to the data file (e.g., "./data/willa.txt").
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
     
+    /**
+     * Loads tasks from the file. Parses each line into its respective Task object.
+     * @return A list of tasks retrieved from the file.
+     * @throws WillaException If the file is corrupted or contains unknown task types.
+     */
     public List<Task> load() throws WillaException {
         List<Task> loadedTasks = new ArrayList<>();
         Path path = Paths.get(filePath);
@@ -42,6 +55,11 @@ public class Storage {
         return loadedTasks;
     }
     
+    /**
+     * Saves the current list of tasks to the file.
+     * Creates the directory if it does not exist before writing.
+     * @param tasks The list of Task objects to be persisted.
+     */
     public void save(List<Task> tasks) {
         try {
             Path path = Paths.get(filePath);
